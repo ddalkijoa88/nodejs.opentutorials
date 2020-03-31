@@ -67,7 +67,13 @@ var app = http.createServer(function (request, response) {
           var list = templateList(filelist);
           var template = templateHTML(title, list,
               `<h2>${title}</h2>${description}`,
-              `<a href="/create">create</a> <a href="/update?id=${title}">update</a>`);
+              `<a href="/create">create</a> 
+                       <a href="/update?id=${title}">update</a> 
+                       <form action="delete_process" method="post" onsubmit="정말로 삭제하겠습니까?">
+                       <input type="hidden" name="id" value="${title}">
+                       <input type="submit" value="delete">
+                       </form>
+                       `);
 
           response.writeHead(200);
           response.end(template);
@@ -153,6 +159,33 @@ var app = http.createServer(function (request, response) {
       })
       // console.log(post);
     });
+  // } else if(pathname === '/delete'){
+  //   fs.readdir('./data', function (error, filelist) {
+  //     // path가 '/'이면서 쿼리 스트링이 있는 경우 호출할 내용
+  //     fs.readFile(`data/${title}`, 'utf8', function (err, description) {
+  //       var list = templateList(filelist);
+  //       var template = templateHTML(title, list,
+  //           `<h2>정말로 삭제하시겠습니까?</h2><input type="submit" onclick="location.href='/delete_process'">`,
+  //           `<a href="/create">create</a> <a href="/update?id=${title}">update</a>`);
+  //       response.writeHead(200);
+  //       response.end(template);
+  //     });
+  //   });
+  } else if(pathname === '/delete_process'){
+    var body= '';
+    request.on('data', function (data) {
+      body += data;
+    });
+    request.on('end', function () {
+      var post = qs.parse(body);
+      var id = post.id;
+
+      fs.unlink(`data/${id}`, function (err) {
+        response.writeHead(302, {location: '/'});
+        response.end();
+      });
+    });
+
   } else {
     // pathname이 '/'이 아닌 경우 에러 페이지 출력.
     //ex) http://localhost:3000/sdfj 이렇게 들어오면 pathname이 /sdfj가 됨. 즉, '/' != '/sdfj'
