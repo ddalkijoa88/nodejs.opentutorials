@@ -14,6 +14,7 @@ function templateHTML(title, list, body) {
   <body>
     <h1><a href="/">WEB</a></h1>
     ${list}
+    <a href="/create">create</a>
     ${body}
   </body>
   </html>`;
@@ -68,7 +69,24 @@ var app = http.createServer(function (request, response) {
         });
       });
     }
-  } else {
+  } else if(pathname === '/create'){
+    fs.readdir('./data', function (error, filelist) {
+      // console.log(filelist);
+      var title = 'WEB - create';
+      var list = templateList(filelist);
+      var template = templateHTML(title, list, `
+        <form action="http://localhost:3000/process_create" method="post">
+            <p><input type="text" name="title" placeholder="title"></p>
+            <p><textarea name="description" placeholder="description"></textarea></p>
+            <p><input type="submit"></p>
+        </form>
+      `);
+
+      response.writeHead(200);
+      response.end(template);
+    });
+  }
+  else {
     // pathname이 '/'이 아닌 경우 에러 페이지 출력.
     //ex) http://localhost:3000/sdfj 이렇게 들어오면 pathname이 /sdfj가 됨. 즉, '/' != '/sdfj'
     response.writeHead(404);
