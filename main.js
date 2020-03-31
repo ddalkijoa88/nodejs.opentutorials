@@ -1,6 +1,7 @@
 var http = require('http');
 var fs = require('fs');
 var url = require('url');
+var qs = require('querystring');
 
 // 홈페이지를 구성하는 HTML 기본 태그에 관한 함수
 function templateHTML(title, list, body) {
@@ -75,7 +76,7 @@ var app = http.createServer(function (request, response) {
       var title = 'WEB - create';
       var list = templateList(filelist);
       var template = templateHTML(title, list, `
-        <form action="http://localhost:3000/process_create" method="post">
+        <form action="http://localhost:3000/create_process" method="post">
             <p><input type="text" name="title" placeholder="title"></p>
             <p><textarea name="description" placeholder="description"></textarea></p>
             <p><input type="submit"></p>
@@ -85,8 +86,23 @@ var app = http.createServer(function (request, response) {
       response.writeHead(200);
       response.end(template);
     });
-  }
-  else {
+  } else if(pathname === '/create_process'){
+    // form에 데이터를 입력했을 때 post 방식으로 처리하는 것
+    var body = '';
+    request.on('data', function (data) {
+      body += data;
+    });
+    request.on('end', function () {
+      var post = qs.parse(body);
+      var title = post.title;
+      var description = post.description;
+      // console.log(post);
+      // console.log(post.title);
+      // console.log(title);
+    });
+  response.writeHead(200);
+  response.end('sucess');
+  } else {
     // pathname이 '/'이 아닌 경우 에러 페이지 출력.
     //ex) http://localhost:3000/sdfj 이렇게 들어오면 pathname이 /sdfj가 됨. 즉, '/' != '/sdfj'
     response.writeHead(404);
